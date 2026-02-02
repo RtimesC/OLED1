@@ -1,0 +1,38 @@
+# Keil 编译输出文件
+*.o
+*.d
+*.crf
+*.lst
+*.map
+*.hex
+*.axf
+*.tra
+*.dep
+*.bak
+*.ddk
+*.edk
+*.lst
+*.lnp
+*.mpf
+*.mpj
+*.omf
+*.plg
+*.rpt
+*.tmp
+*.__i
+*._ia
+
+# Keil 项目用户选项文件（包含个人设置）
+*.uvopt
+*.uvoptx
+*.uvguix
+
+# 输出目录
+Objects/
+Listings/
+DebugConfig/
+RTE/
+
+# 其他
+*.bat
+JLinkSettings.ini
