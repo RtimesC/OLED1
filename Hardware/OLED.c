@@ -5,10 +5,13 @@
 #define OLED_W_SCL(x)		GPIO_WriteBit(GPIOB, GPIO_Pin_8, (BitAction)(x))
 #define OLED_W_SDA(x)		GPIO_WriteBit(GPIOB, GPIO_Pin_9, (BitAction)(x))
 
+/*I2C时序延时配置 - 根据实际OLED响应速度调整*/
+#define I2C_DELAY_ITERATIONS	10
+
 /*I2C延时函数*/
 static void I2C_Delay(void)
 {
-	uint8_t i = 10;  // 可根据实际情况调整
+	uint8_t i = I2C_DELAY_ITERATIONS;
 	while(i--);
 }
 
