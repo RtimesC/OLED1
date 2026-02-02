@@ -5,6 +5,16 @@
 #define OLED_W_SCL(x)		GPIO_WriteBit(GPIOB, GPIO_Pin_8, (BitAction)(x))
 #define OLED_W_SDA(x)		GPIO_WriteBit(GPIOB, GPIO_Pin_9, (BitAction)(x))
 
+/*I2C时序延时配置 - 根据实际OLED响应速度调整*/
+#define I2C_DELAY_ITERATIONS	10
+
+/*I2C延时函数*/
+static void I2C_Delay(void)
+{
+	uint8_t i = I2C_DELAY_ITERATIONS;
+	while(i--);
+}
+
 /*引脚初始化*/
 void OLED_I2C_Init(void)
 {
@@ -31,8 +41,11 @@ void OLED_I2C_Start(void)
 {
 	OLED_W_SDA(1);
 	OLED_W_SCL(1);
+	I2C_Delay();
 	OLED_W_SDA(0);
+	I2C_Delay();
 	OLED_W_SCL(0);
+	I2C_Delay();
 }
 
 /**
@@ -43,8 +56,11 @@ void OLED_I2C_Start(void)
 void OLED_I2C_Stop(void)
 {
 	OLED_W_SDA(0);
+	I2C_Delay();
 	OLED_W_SCL(1);
+	I2C_Delay();
 	OLED_W_SDA(1);
+	I2C_Delay();
 }
 
 /**
@@ -58,11 +74,16 @@ void OLED_I2C_SendByte(uint8_t Byte)
 	for (i = 0; i < 8; i++)
 	{
 		OLED_W_SDA(!!(Byte & (0x80 >> i)));
+		I2C_Delay();
 		OLED_W_SCL(1);
+		I2C_Delay();
 		OLED_W_SCL(0);
+		I2C_Delay();
 	}
 	OLED_W_SCL(1);	//额外的一个时钟，不处理应答信号
+	I2C_Delay();
 	OLED_W_SCL(0);
+	I2C_Delay();
 }
 
 /**
@@ -90,6 +111,25 @@ void OLED_WriteData(uint8_t Data)
 	OLED_I2C_SendByte(0x78);		//从机地址
 	OLED_I2C_SendByte(0x40);		//写数据
 	OLED_I2C_SendByte(Data);
+	OLED_I2C_Stop();
+}
+
+/**
+  * @brief  OLED批量写数据
+  * @param  pData 数据指针
+  * @param  Length 数据长度
+  * @retval 无
+  */
+void OLED_WriteData_Multi(uint8_t *pData, uint8_t Length)
+{
+	uint8_t i;
+	OLED_I2C_Start();
+	OLED_I2C_SendByte(0x78);		//从机地址
+	OLED_I2C_SendByte(0x40);		//写数据
+	for (i = 0; i < Length; i++)
+	{
+		OLED_I2C_SendByte(pData[i]);
+	}
 	OLED_I2C_Stop();
 }
 
@@ -134,16 +174,21 @@ void OLED_Clear(void)
 void OLED_ShowChar(uint8_t Line, uint8_t Column, char Char)
 {      	
 	uint8_t i;
-	OLED_SetCursor((Line - 1) * 2, (Column - 1) * 8);		//设置光标位置在上半部分
-	for (i = 0; i < 8; i++)
+	uint8_t charData[16];
+	
+	// 复制字符数据到缓冲区
+	for (i = 0; i < 16; i++)
 	{
-		OLED_WriteData(OLED_F8x16[Char - ' '][i]);			//显示上半部分内容
+		charData[i] = OLED_F8x16[Char - ' '][i];
 	}
-	OLED_SetCursor((Line - 1) * 2 + 1, (Column - 1) * 8);	//设置光标位置在下半部分
-	for (i = 0; i < 8; i++)
-	{
-		OLED_WriteData(OLED_F8x16[Char - ' '][i + 8]);		//显示下半部分内容
-	}
+	
+	// 显示上半部分（一次性写入8字节）
+	OLED_SetCursor((Line - 1) * 2, (Column - 1) * 8);
+	OLED_WriteData_Multi(charData, 8);
+	
+	// 显示下半部分（一次性写入8字节）
+	OLED_SetCursor((Line - 1) * 2 + 1, (Column - 1) * 8);
+	OLED_WriteData_Multi(&charData[8], 8);
 }
 
 /**
@@ -319,3 +364,4 @@ void OLED_Init(void)
 		
 	OLED_Clear();				//OLED清屏
 }
+
