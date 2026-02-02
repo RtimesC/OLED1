@@ -1,0 +1,53 @@
+# Keil MDK编译输出
+Objects/
+Listings/
+DebugConfig/
+*.uvguix
+*.uvguix.*
+*.bak
+*.ddk
+*.edk
+*.lst
+*.lnp
+*.mpf
+*.mpj
+*.omf
+*.plg
+*.rpt
+*.tmp
+*.__i
+*.__ii
+*.crf
+*.d
+*.o
+*.axf
+*.tra
+*.dep
+*.build_log.htm
+*.iex
+*.out
+*.hex
+*.map
+*.scvd
+
+# Keil用户特定文件
+*.uvopt
+*.uvoptx
+JLinkLog.txt
+JLinkSettings.ini
+
+# IDE特定文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 其他
+_codeql_detected_source_root
+*.log
